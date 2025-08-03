@@ -62,7 +62,10 @@ export default {
 		}
 
 		let pp: number[] = [];
-		const db_pp: CompleteModeStats = await get_mode_stats(db_info.user_id);
+		const db_pp: CompleteModeStats = await get_mode_stats(
+			db_info.user_id,
+			true
+		);
 		for (const mode of modes) {
 			const mode_pp = interaction.options.getInteger(mode);
 			if (mode_pp) {
