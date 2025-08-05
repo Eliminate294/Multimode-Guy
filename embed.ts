@@ -72,7 +72,7 @@ client.on("interactionCreate", async (interaction) => {
 			process.env.OSU_CLIENT_ID
 		}&redirect_uri=${encodeURIComponent(
 			callback + "/auth/discord"
-		)}&response_type=code&scope=identify&state=${token}`;
+		)}&response_type=code&scope=public+identify&state=${token}`;
 		await interaction.reply({
 			content: oauth,
 			flags: MessageFlags.Ephemeral,
