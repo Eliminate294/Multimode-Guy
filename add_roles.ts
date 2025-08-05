@@ -1,4 +1,10 @@
-import { Guild, GuildMember, Role, TextChannel } from "discord.js";
+import {
+	DiscordAPIError,
+	Guild,
+	GuildMember,
+	Role,
+	TextChannel,
+} from "discord.js";
 import client from "./client.js";
 import { get_osekai } from "./osekai.js";
 import { check_state } from "./embed.js";
@@ -10,6 +16,7 @@ let verifiedRole: string | undefined;
 const milestones = [
 	1, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000,
 ];
+let milestoneRoles: string[];
 
 client.once("ready", async () => {
 	guild = await client.guilds.fetch("1371190654922657954");
@@ -19,6 +26,9 @@ client.once("ready", async () => {
 	verifiedRole = guild.roles.cache.find(
 		(role) => role.name.toLowerCase() === "verified"
 	)?.id;
+	milestoneRoles = guild.roles.cache
+		.filter((role) => milestones.some((m) => role.name.includes(`${m}`)))
+		.map((role) => role.id);
 });
 
 export async function check_user(
@@ -122,8 +132,20 @@ export async function update_rank(discordId: string, osuId: number) {
 	}
 
 	let milestoneRole = await get_milestone(rank);
+
 	if (milestoneRole && verifiedRole) {
-		await member.roles.set([verifiedRole, milestoneRole.id]);
+		try {
+			const keptRoles = member.roles.cache.filter(
+				(role) => !milestoneRoles.includes(role.id)
+			);
+
+			keptRoles.set(milestoneRole.id, milestoneRole);
+			await member.roles.set([verifiedRole, milestoneRole.id]);
+		} catch (err) {
+			if (err instanceof DiscordAPIError && err.code !== 50013) {
+				console.error(err);
+			}
+		}
 	} else if (milestoneRole) {
 		await member.roles.add(milestoneRole);
 	}
