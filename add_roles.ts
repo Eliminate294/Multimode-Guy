@@ -33,7 +33,7 @@ export async function check_user(
 	const member = await add_verified(discordId);
 	if (member) {
 		await add_rank(member, userData);
-		await insert_new_discord(Number(userData.id), Number(member.id));
+		await insert_new_discord(Number(userData.id), discordId);
 	}
 }
 
