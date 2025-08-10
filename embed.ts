@@ -62,7 +62,6 @@ client.once("ready", async () => {
 	)) as TextChannel;
 });
 
-let interactions: Record<string, ButtonInteraction> = {};
 client.on("interactionCreate", async (interaction) => {
 	if (!interaction.isButton()) return;
 
@@ -77,31 +76,15 @@ client.on("interactionCreate", async (interaction) => {
 			content: oauth,
 			flags: MessageFlags.Ephemeral,
 		});
-		interactions[interaction.user.id.toString()] = interaction;
 	}
 });
 
 export async function check_state(
-	discordId: string,
 	userData: Record<string, any>
 ): Promise<boolean> {
 	const team = userData?.team;
-	const interaction = interactions[discordId];
 	console.log(team);
-	if (!team) {
-		await interaction.followUp({
-			content:
-				"You are not part of any team, please request to join the Multimode team to verify.",
-			flags: MessageFlags.Ephemeral,
-		});
-		return false;
-	}
-	if (team.id !== 5969) {
-		await interaction.followUp({
-			content:
-				"You are not part of the Multimode team, please request to join the Multimode team to verify.",
-			flags: MessageFlags.Ephemeral,
-		});
+	if (!team || team.id !== 5969) {
 		return false;
 	}
 	return true;

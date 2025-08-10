@@ -35,27 +35,32 @@ export async function check_user(
 	userData: Record<string, any>,
 	discordId: string
 ): Promise<void> {
-	const success: boolean = await check_state(discordId, userData);
-	if (!success) {
+	const inTeam: boolean = await check_state(userData);
+	const member = await guild.members.fetch(discordId);
+	if (!member) {
+		console.error("Member not found:", discordId);
 		return;
 	}
-
-	const member = await add_verified(discordId);
-	if (member) {
-		await add_rank(member, userData);
-		await insert_new_discord(Number(userData.id), discordId);
+	if (inTeam) {
+		try {
+			await member.roles.add("1403448698393854014");
+		} catch (err) {
+			console.error(err);
+		}
 	}
+
+	await add_verified(member);
+	await add_rank(member, userData);
+	await insert_new_discord(Number(userData.id), discordId);
 }
 
-async function add_verified(discordId: string): Promise<GuildMember | void> {
+async function add_verified(member: GuildMember): Promise<void> {
 	if (!verifiedRole) {
 		console.error("Verified role not found");
 		return;
 	}
 	try {
-		const member = await guild.members.fetch(discordId);
 		await member.roles.add(verifiedRole);
-		return member;
 	} catch (err) {
 		console.error(err);
 	}
