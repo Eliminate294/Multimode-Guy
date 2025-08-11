@@ -145,7 +145,7 @@ export async function update_rank(discordId: string, osuId: number) {
 			);
 
 			keptRoles.set(milestoneRole.id, milestoneRole);
-			await member.roles.set([verifiedRole, milestoneRole.id]);
+			await member.roles.set(keptRoles);
 		} catch (err) {
 			if (err instanceof DiscordAPIError && err.code !== 50013) {
 				console.error(err);
