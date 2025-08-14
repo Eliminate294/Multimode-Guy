@@ -133,6 +133,7 @@ export async function update_rank(discordId: string, osuId: number) {
 	const username: string | null = data[0]?.name;
 
 	if (!rank || !username) {
+		console.log(`Invalid osekai data for ${osuId}`);
 		return;
 	}
 
