@@ -7,6 +7,7 @@ import {
 	CommandInteraction,
 } from "discord.js";
 import { deployCommands } from "./deploy_commands.js";
+import { privateVCListener } from "./private_channels.js";
 
 interface ExtendedClient extends Client {
 	commands: Collection<
@@ -24,6 +25,7 @@ const client: ExtendedClient = new Client({
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildVoiceStates,
 	],
 }) as ExtendedClient;
 
@@ -31,6 +33,7 @@ client.commands = new Collection();
 
 client.once(Events.ClientReady, async (readyClient) => {
 	await deployCommands();
+	await privateVCListener(client);
 	console.log(`Discord bot logged in as ${readyClient.user.tag}`);
 	//await give_verified_all_roles("1403448698393854014");
 });
