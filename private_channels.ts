@@ -5,7 +5,6 @@ export function privateVCListener(client: Client) {
 	client.on(
 		"voiceStateUpdate",
 		async (oldState: VoiceState, newState: VoiceState) => {
-			console.log("update");
 			if (!oldState.channel) {
 				return;
 			}
@@ -16,13 +15,11 @@ export function privateVCListener(client: Client) {
 				([userId, vc]) => vc.id === channel.id
 			)?.[0];
 
-			console.log(ownerId);
 			if (!ownerId) {
 				return;
 			}
 
 			if (channel.members.size === 0) {
-				console.log("no more ppl in vc");
 				try {
 					await channel.delete();
 					private_vcs.delete(ownerId);

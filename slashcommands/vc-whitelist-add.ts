@@ -50,7 +50,7 @@ export default {
 		});
 
 		await interaction.reply({
-			content: `${user.displayName} has been whitelisted to: <#${channel.id}>`,
+			content: `<@${user.id}> has been whitelisted to: <#${channel.id}>`,
 			flags: MessageFlags.Ephemeral,
 		});
 	},
