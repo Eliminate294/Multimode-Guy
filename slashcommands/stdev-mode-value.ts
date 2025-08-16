@@ -14,7 +14,7 @@ import { EmbedBuilder } from "@discordjs/builders";
 export default {
 	data: new SlashCommandBuilder()
 		.setName("stdev-mode-value")
-		.setDescription("Calculate how much PP you would need in a given mode ")
+		.setDescription("Calculate how much spp you gain per 1pp in each mode")
 		.addMentionableOption((option) =>
 			option
 				.setName("user")
