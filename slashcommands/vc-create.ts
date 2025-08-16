@@ -54,6 +54,7 @@ export default {
 					allow: [
 						PermissionFlagsBits.Connect,
 						PermissionFlagsBits.ReadMessageHistory,
+						PermissionFlagsBits.SendMessages,
 					],
 				},
 			],

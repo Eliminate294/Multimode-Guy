@@ -47,6 +47,7 @@ export default {
 			Connect: true,
 			ViewChannel: true,
 			ReadMessageHistory: true,
+			SendMessages: true,
 		});
 
 		await interaction.reply({
