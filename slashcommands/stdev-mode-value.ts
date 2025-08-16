@@ -77,11 +77,11 @@ export default {
 				},
 				{
 					name: "\u200B",
-					value: `${calcStdev.get("osu")} pp\n${calcStdev.get(
+					value: `${calcStdev.get("osu")} spp\n${calcStdev.get(
 						"taiko"
-					)} pp\n${calcStdev.get("fruits")} pp\n${calcStdev.get(
+					)} spp\n${calcStdev.get("fruits")} spp\n${calcStdev.get(
 						"mania"
-					)} pp`,
+					)} spp`,
 					inline: true,
 				}
 			);
