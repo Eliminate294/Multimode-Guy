@@ -69,4 +69,14 @@ export async function get_stdev_rank(pp: number): Promise<number> {
 	return left + 1;
 }
 
+export async function get_stdev_pp(
+	rank: number
+): Promise<Record<string, string>> {
+	if (!stats) {
+		throw new Error("Stats not defined");
+	}
+
+	return stats[rank - 1];
+}
+
 await update_osekai_site();
