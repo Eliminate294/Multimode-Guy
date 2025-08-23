@@ -66,7 +66,12 @@ export default {
 			if (option.type !== ApplicationCommandOptionType.Boolean) {
 				continue;
 			}
-			perms |= options[option.name].perm;
+
+			if (option.value === true) {
+				perms |= options[option.name].perm;
+			} else if (option.value === false) {
+				perms &= ~options[option.name].perm;
+			}
 		}
 
 		guildObject.permissions = perms;
