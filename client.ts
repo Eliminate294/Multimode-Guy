@@ -81,6 +81,12 @@ client.on("guildCreate", async (guild: Guild) => {
 	guildObjects.set(guild.id, new GuildObject(guild.id, defaultPermissions));
 });
 
+client.on("guildDelete", async (guild: Guild) => {
+	console.log(`Left server: ${guild.name} | ${guild.id}`);
+	await remove_server(guild.id);
+	guildObjects.delete(guild.id);
+});
+
 client.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
 
