@@ -5,9 +5,14 @@ import {
 	Collection,
 	SlashCommandBuilder,
 	CommandInteraction,
+	Guild,
 } from "discord.js";
 import { deployCommands } from "./deploy_commands.js";
 import { privateVCListener } from "./private_channels.js";
+import { GuildObject } from "./guild.js";
+import { get_discord_servers } from "../func/psql/get_discord_servers.js";
+import { update_server } from "../func/psql/update_server.js";
+import { remove_server } from "../func/psql/remove_server.js";
 
 interface ExtendedClient extends Client {
 	commands: Collection<
@@ -31,11 +36,49 @@ const client: ExtendedClient = new Client({
 
 client.commands = new Collection();
 
+export const guildObjects = new Map<string, GuildObject>();
+const defaultPermissions = 0;
+
 client.once(Events.ClientReady, async (readyClient) => {
+	const guilds = await get_discord_servers();
+	if (!guilds) {
+		throw new Error("No guilds found in database (discord.servers)");
+	}
+	const dbGuildMap = new Map<string, number>();
+	guilds.forEach((row) => {
+		dbGuildMap.set(row.guild_id, row.permissions);
+	});
+
+	const cacheSet = new Set(client.guilds.cache.map((guild) => guild.id));
+
+	console.log(dbGuildMap.keys());
+	const removedServers = Array.from(dbGuildMap.keys()).filter(
+		(id) => !cacheSet.has(id)
+	);
+	removedServers.forEach((guildId) => {
+		remove_server(guildId);
+		console.log("removed server:", guildId);
+	});
+
+	cacheSet.forEach((guildId) => {
+		let permissions = dbGuildMap.get(guildId);
+		if (!permissions) {
+			update_server(guildId, defaultPermissions);
+			permissions = defaultPermissions;
+		}
+		guildObjects.set(guildId, new GuildObject(guildId, permissions));
+	});
 	await deployCommands();
 	await privateVCListener(client);
+
 	console.log(`Discord bot logged in as ${readyClient.user.tag}`);
-	//await give_verified_all_roles("1403448698393854014");
+	console.log(guildObjects);
+});
+
+client.on("guildCreate", async (guild: Guild) => {
+	console.log(`Joined server: ${guild.name} | ${guild.id}`);
+	await update_server(guild.id, defaultPermissions);
+	guildObjects.set(guild.id, new GuildObject(guild.id, defaultPermissions));
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
@@ -56,25 +99,5 @@ client.on(Events.InteractionCreate, async (interaction) => {
 export const startBot = async () => {
 	await client.login(process.env.DISCORD_BOT_TOKEN);
 };
-
-async function give_verified_all_roles(role: string) {
-	console.log("running verified roles");
-	const guild = await client.guilds.cache.get("1371190654922657954");
-	console.log(guild);
-	const members = await guild!.members.fetch();
-	console.log(members);
-	for (const member of members.values()) {
-		if (member.roles.cache.has("1397401263485882448")) {
-			try {
-				await member.roles.add(role);
-				console.log(`Added role to ${member.user.tag}`);
-			} catch (err) {
-				console.error(`Couldn't add role to ${member.user.tag}:`, err);
-			}
-		} else {
-			console.log(`${member.user.tag} does not have verified role`);
-		}
-	}
-}
 
 export default client;
