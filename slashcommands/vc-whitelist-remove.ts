@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { private_vcs } from "./vc-create.js";
 import { guildObjects } from "../client.js";
+import { ClientPermissions } from "../permissions.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -29,10 +30,19 @@ export default {
 			});
 			return;
 		}
-		if (!guildObjects.get(interaction.guild.id)) {
+		const guildObject = guildObjects.get(interaction.guild.id);
+		if (!guildObject) {
 			await interaction.reply({
 				content:
 					"This command must be used in a server the bot exists in",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+		if (!guildObject.hasPermission(ClientPermissions.CreatePrivateVoice)) {
+			await interaction.reply({
+				content:
+					"This command is disabled in this server, use '/admin-permissions private-vcs:true' to use it",
 				flags: MessageFlags.Ephemeral,
 			});
 			return;

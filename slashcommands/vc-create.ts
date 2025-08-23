@@ -8,6 +8,7 @@ import {
 	VoiceChannel,
 } from "discord.js";
 import { guildObjects } from "../client.js";
+import { ClientPermissions } from "../permissions.js";
 
 export const private_vcs: Map<string, VoiceChannel> = new Map();
 
@@ -31,10 +32,19 @@ export default {
 			});
 			return;
 		}
-		if (!guildObjects.get(interaction.guild.id)) {
+		const guildObject = guildObjects.get(interaction.guild.id);
+		if (!guildObject) {
 			await interaction.reply({
 				content:
 					"This command must be used in a server the bot exists in",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+		if (!guildObject.hasPermission(ClientPermissions.CreatePrivateVoice)) {
+			await interaction.reply({
+				content:
+					"This command is disabled in this server, use '/admin-permissions private-vcs:true' to use it",
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
@@ -65,7 +75,7 @@ export default {
 		const channel = await interaction.guild.channels.create({
 			name: `${user.globalName}'s VC`,
 			type: ChannelType.GuildVoice,
-			parent: "1371190656298516522", // "Voice channels" category
+			//parent: "1371190656298516522", // "Voice channels" category
 			permissionOverwrites: [
 				everyonePermissions,
 				{
