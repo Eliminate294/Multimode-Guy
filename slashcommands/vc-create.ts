@@ -2,18 +2,27 @@ import {
 	ChannelType,
 	ChatInputCommandInteraction,
 	MessageFlags,
+	OverwriteData,
 	PermissionFlagsBits,
 	SlashCommandBuilder,
 	VoiceChannel,
 } from "discord.js";
+import { guildObjects } from "../client.js";
 
 export const private_vcs: Map<string, VoiceChannel> = new Map();
 
 export default {
 	data: new SlashCommandBuilder()
 		.setName("vc-create")
-		.setDescription("Creates a private voice channel"),
-
+		.setDescription("Creates a private voice channel")
+		.addBooleanOption((option) =>
+			option
+				.setName("public")
+				.setDescription(
+					"Whether other users can join without needing to whitelist (default false)"
+				)
+				.setRequired(false)
+		),
 	async execute(interaction: ChatInputCommandInteraction) {
 		if (!interaction.guild) {
 			await interaction.reply({
@@ -21,6 +30,27 @@ export default {
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
+		}
+		if (!guildObjects.get(interaction.guild.id)) {
+			await interaction.reply({
+				content:
+					"This command must be used in a server the bot exists in",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+		const everyonePermissions: OverwriteData = {
+			id: interaction.guild.roles.everyone,
+			deny: [
+				PermissionFlagsBits.ReadMessageHistory,
+				PermissionFlagsBits.Connect,
+			],
+			allow: [],
+		};
+		const isPublic =
+			interaction.options.getBoolean("public", false) ?? false;
+		if (isPublic) {
+			everyonePermissions.deny = [];
 		}
 		const user = interaction.user;
 		if (private_vcs.get(user.id)) {
@@ -32,23 +62,12 @@ export default {
 			});
 			return;
 		}
-		const channel = await interaction.guild?.channels.create({
+		const channel = await interaction.guild.channels.create({
 			name: `${user.globalName}'s VC`,
 			type: ChannelType.GuildVoice,
 			parent: "1371190656298516522", // "Voice channels" category
 			permissionOverwrites: [
-				{
-					id: interaction.guild.roles.everyone,
-					deny: [
-						PermissionFlagsBits.ViewChannel,
-						PermissionFlagsBits.ReadMessageHistory,
-						PermissionFlagsBits.Connect,
-					],
-				},
-				{
-					id: "1397401263485882448", // Verified role
-					allow: [PermissionFlagsBits.ViewChannel],
-				},
+				everyonePermissions,
 				{
 					id: user.id,
 					allow: [

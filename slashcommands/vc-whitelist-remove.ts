@@ -6,6 +6,7 @@ import {
 	User,
 } from "discord.js";
 import { private_vcs } from "./vc-create.js";
+import { guildObjects } from "../client.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -21,6 +22,21 @@ export default {
 		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
+		if (!interaction.guild) {
+			await interaction.reply({
+				content: "This command must be used in a server",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
+		if (!guildObjects.get(interaction.guild.id)) {
+			await interaction.reply({
+				content:
+					"This command must be used in a server the bot exists in",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
+		}
 		const channel = private_vcs.get(interaction.user.id);
 		if (!channel) {
 			await interaction.reply({
