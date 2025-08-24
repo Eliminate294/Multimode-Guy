@@ -3,7 +3,7 @@ import {
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
-import { generate_token } from "../auth/embed.js";
+import { discord_token } from "../auth/embed.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ export default {
 		.setDescription("Link your osu account with the bot"),
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		const token = generate_token();
+		const token = discord_token(interaction.user.id);
 		const oauth = `https://osu.ppy.sh/oauth/authorize?client_id=${
 			process.env.OSU_CLIENT_ID
 		}&redirect_uri=${encodeURIComponent(
