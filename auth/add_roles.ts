@@ -8,7 +8,6 @@ import {
 import client from "../client.js";
 import { get_osekai } from "../osekai.js";
 import { check_state } from "./embed.js";
-import { insert_new_discord } from "../../func/psql/insert_new_discord.js";
 
 let guild: Guild;
 let channel: TextChannel;
@@ -36,7 +35,13 @@ export async function check_user(
 	discordId: string
 ): Promise<void> {
 	const inTeam: boolean = await check_state(userData);
-	const member = await guild.members.fetch(discordId);
+	let member: GuildMember | undefined;
+	try {
+		member = await guild.members.fetch(discordId);
+	} catch (err) {
+		console.log(err);
+		return;
+	}
 	if (!member) {
 		console.error("Member not found:", discordId);
 		return;
@@ -51,7 +56,6 @@ export async function check_user(
 
 	await add_verified(member);
 	await add_rank(member, userData);
-	await insert_new_discord(Number(userData.id), discordId);
 }
 
 async function add_verified(member: GuildMember): Promise<void> {
