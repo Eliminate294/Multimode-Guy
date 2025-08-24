@@ -2,6 +2,7 @@ import {
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	Interaction,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import { calculate_stdev } from "../std_dev.js";
@@ -54,6 +55,11 @@ export default {
 					"User does not have a valid database entry:",
 					interaction.user.username
 				);
+				await interaction.reply({
+					content:
+						"User could not be found, use /link to link your osu account to the bot",
+					flags: MessageFlags.Ephemeral,
+				});
 				return;
 			}
 		} else {

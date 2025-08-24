@@ -1,6 +1,7 @@
 import {
 	ChatInputCommandInteraction,
 	GuildMember,
+	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import {
@@ -29,9 +30,12 @@ export default {
 		) as GuildMember;
 		const tokenData = await get_osu_discord(user.id);
 		if (!tokenData) {
-			throw new Error(
-				`User '${user.displayName} | ${user.id}' not in database`
-			);
+			await interaction.reply({
+				content:
+					"User could not be found, use /link to add your account to the bot, or tell the user you are using to do so",
+				flags: MessageFlags.Ephemeral,
+			});
+			return;
 		}
 		const allStats = await get_mode_stats(tokenData.user_id);
 		let pp: Map<string, number> = new Map();
