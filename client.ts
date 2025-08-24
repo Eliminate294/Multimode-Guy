@@ -72,7 +72,13 @@ client.once(Events.ClientReady, async (readyClient) => {
 	await privateVCListener(client);
 
 	console.log(`Discord bot logged in as ${readyClient.user.tag}`);
-	console.log(guildObjects);
+	guildObjects.forEach((guild) => {
+		console.log(
+			`${client.guilds.cache.get(guild.guildId)?.name} => ${
+				guild.guildId
+			}`
+		);
+	});
 });
 
 client.on("guildCreate", async (guild: Guild) => {
