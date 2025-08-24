@@ -31,7 +31,7 @@ const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 type states<T> = Map<string, { value: T; timeout: NodeJS.Timeout }>;
 const discordAuth: states<string> = new Map();
 
-export function generate_token(length = 16): string {
+function generate_token(length = 16): string {
 	const chars =
 		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	return Array.from(
@@ -40,7 +40,10 @@ export function generate_token(length = 16): string {
 	).join("");
 }
 
-function discord_token(discordId: string, ttlMs: number = 300_000): string {
+export function discord_token(
+	discordId: string,
+	ttlMs: number = 300_000
+): string {
 	const token = generate_token();
 	const timeout = setTimeout(() => {
 		discordAuth.delete(token);
