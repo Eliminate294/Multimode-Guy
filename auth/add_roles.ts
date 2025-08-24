@@ -35,13 +35,7 @@ export async function check_user(
 	discordId: string
 ): Promise<void> {
 	const inTeam: boolean = await check_state(userData);
-	let member: GuildMember | undefined;
-	try {
-		member = await guild.members.fetch(discordId);
-	} catch (err) {
-		console.log(err);
-		return;
-	}
+	const member = await guild.members.fetch(discordId);
 	if (!member) {
 		console.error("Member not found:", discordId);
 		return;
