@@ -13,7 +13,6 @@ import { GuildObject } from "./guild.js";
 import { get_discord_servers } from "../func/psql/get_discord_servers.js";
 import { update_server } from "../func/psql/update_server.js";
 import { remove_server } from "../func/psql/remove_server.js";
-import { update_test } from "../func/psql/update_test.js";
 
 interface ExtendedClient extends Client {
 	commands: Collection<
