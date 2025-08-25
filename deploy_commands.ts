@@ -38,7 +38,9 @@ export async function deployCommands(): Promise<void> {
 		await rest.put(Routes.applicationCommands("1383493582060654722"), {
 			body: commands,
 		});
-		console.log("Successfully imported slash commands:", commands);
+		for (const command of commands) {
+			console.log(`Successfully imported ${command.name}`);
+		}
 	} catch (err) {
 		console.error(err);
 	}
