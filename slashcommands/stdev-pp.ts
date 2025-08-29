@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
@@ -12,6 +14,15 @@ export default {
 		.setDescription(
 			"Calculate how much pp you need for a given osekai stdev rank"
 		)
+		.setIntegrationTypes([
+			ApplicationIntegrationType.UserInstall,
+			ApplicationIntegrationType.GuildInstall,
+		])
+		.setContexts([
+			InteractionContextType.Guild,
+			InteractionContextType.BotDM,
+			InteractionContextType.PrivateChannel,
+		])
 		.addIntegerOption((option) =>
 			option
 				.setName("rank")

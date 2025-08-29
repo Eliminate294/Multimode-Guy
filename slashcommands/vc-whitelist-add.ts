@@ -1,5 +1,7 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 	User,
@@ -14,6 +16,8 @@ export default {
 		.setDescription(
 			"Allows a user to join your private voice channel (if created)"
 		)
+		.setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+		.setContexts([InteractionContextType.Guild])
 		.addMentionableOption((option) =>
 			option
 				.setName("user")

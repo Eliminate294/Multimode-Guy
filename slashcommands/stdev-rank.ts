@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
+	InteractionContextType,
 	SlashCommandBuilder,
 } from "discord.js";
 import { get_stdev_rank } from "../osekai.js";
@@ -11,6 +13,15 @@ export default {
 		.setDescription(
 			"Calculate what osekai stdev rank you would be with a given pp value"
 		)
+		.setIntegrationTypes([
+			ApplicationIntegrationType.UserInstall,
+			ApplicationIntegrationType.GuildInstall,
+		])
+		.setContexts([
+			InteractionContextType.Guild,
+			InteractionContextType.BotDM,
+			InteractionContextType.PrivateChannel,
+		])
 		.addIntegerOption((option) =>
 			option
 				.setName("pp")

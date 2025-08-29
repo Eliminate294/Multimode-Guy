@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChannelType,
 	ChatInputCommandInteraction,
+	InteractionContextType,
 	MessageFlags,
 	OverwriteData,
 	PermissionFlagsBits,
@@ -16,6 +18,8 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName("vc-create")
 		.setDescription("Creates a private voice channel")
+		.setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+		.setContexts([InteractionContextType.Guild])
 		.addBooleanOption((option) =>
 			option
 				.setName("public")

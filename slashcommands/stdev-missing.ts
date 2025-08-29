@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
@@ -15,6 +17,15 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName("stdev-missing")
 		.setDescription("Calculate how much PP you would need in a given mode ")
+		.setIntegrationTypes([
+			ApplicationIntegrationType.UserInstall,
+			ApplicationIntegrationType.GuildInstall,
+		])
+		.setContexts([
+			InteractionContextType.Guild,
+			InteractionContextType.BotDM,
+			InteractionContextType.PrivateChannel,
+		])
 		.addIntegerOption((option) =>
 			option
 				.setName("goal")

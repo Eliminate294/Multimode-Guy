@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	GuildMember,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 	User,
@@ -15,6 +17,8 @@ export default {
 		.setDescription(
 			"Disallows a user from joining your private voice channel (if created)"
 		)
+		.setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+		.setContexts([InteractionContextType.Guild])
 		.addMentionableOption((option) =>
 			option
 				.setName("user")

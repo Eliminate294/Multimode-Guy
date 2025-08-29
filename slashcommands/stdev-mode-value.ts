@@ -1,6 +1,8 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	GuildMember,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
@@ -16,6 +18,15 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName("stdev-mode-value")
 		.setDescription("Calculate how much spp you gain per 1pp in each mode")
+		.setIntegrationTypes([
+			ApplicationIntegrationType.UserInstall,
+			ApplicationIntegrationType.GuildInstall,
+		])
+		.setContexts([
+			InteractionContextType.Guild,
+			InteractionContextType.BotDM,
+			InteractionContextType.PrivateChannel,
+		])
 		.addMentionableOption((option) =>
 			option
 				.setName("user")

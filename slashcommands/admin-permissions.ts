@@ -1,6 +1,8 @@
 import {
 	ApplicationCommandOptionType,
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
+	InteractionContextType,
 	MessageFlags,
 	PermissionsBitField,
 	SlashCommandBuilder,
@@ -22,6 +24,8 @@ const options: Record<
 const data = new SlashCommandBuilder()
 	.setName("admin-permissions")
 	.setDescription("Enable bot configurations")
+	.setIntegrationTypes([ApplicationIntegrationType.GuildInstall])
+	.setContexts([InteractionContextType.Guild])
 	.setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator);
 
 for (const [name, meta] of Object.entries(options)) {

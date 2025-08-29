@@ -1,7 +1,9 @@
 import {
+	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	Interaction,
+	InteractionContextType,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
@@ -20,6 +22,15 @@ export default {
 		.setDescription(
 			"Calculate how much standard deviated PP you would have if you had x amount in each gamemode"
 		)
+		.setIntegrationTypes([
+			ApplicationIntegrationType.UserInstall,
+			ApplicationIntegrationType.GuildInstall,
+		])
+		.setContexts([
+			InteractionContextType.Guild,
+			InteractionContextType.BotDM,
+			InteractionContextType.PrivateChannel,
+		])
 		.addIntegerOption((option) =>
 			option
 				.setName("osu")
