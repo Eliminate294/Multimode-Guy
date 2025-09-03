@@ -17,7 +17,9 @@ import { get_user_pp } from "../api/get_user.js";
 export default {
 	data: new SlashCommandBuilder()
 		.setName("stdev-missing")
-		.setDescription("Calculate how much PP you would need in a given mode ")
+		.setDescription(
+			"Calculate how much PP you would need in each mode to reach a spp goal"
+		)
 		.setIntegrationTypes([
 			ApplicationIntegrationType.UserInstall,
 			ApplicationIntegrationType.GuildInstall,
@@ -34,18 +36,6 @@ export default {
 					"Amount of standard deviated pp you are aiming for"
 				)
 				.setRequired(true)
-		)
-		.addStringOption((option) =>
-			option
-				.setName("mode")
-				.setDescription("The mode you want to calculate for")
-				.setRequired(true)
-				.addChoices(
-					{ name: "osu", value: "osu" },
-					{ name: "taiko", value: "taiko" },
-					{ name: "fruits", value: "fruits" },
-					{ name: "mania", value: "mania" }
-				)
 		)
 		.addStringOption((option) =>
 			option
@@ -96,52 +86,85 @@ export default {
 			}
 		}
 
-		const selected_mode = interaction.options.getString(
-			"mode",
-			true
-		) as keyof CompleteModeStats;
-		const otherModes = (
-			["osu", "taiko", "fruits", "mania"] as const
-		).filter((mode) => mode !== selected_mode);
-
-		const pp: number[] = otherModes.map((mode) => Number(mode_pp[mode]));
 		const goal = interaction.options.getInteger("goal", true);
-		console.log(goal);
+		const result: Record<Mode, Record<string, number>> = {
+			osu: { needed: 0, difference: 0 },
+			taiko: { needed: 0, difference: 0 },
+			fruits: { needed: 0, difference: 0 },
+			mania: { needed: 0, difference: 0 },
+		};
+		for (const selected_mode of [
+			"osu",
+			"taiko",
+			"fruits",
+			"mania",
+		] as const) {
+			const otherModes = (
+				["osu", "taiko", "fruits", "mania"] as const
+			).filter((mode) => mode !== selected_mode);
 
-		const needed = calculate_missing(pp, goal);
-		if (!needed) {
-			await interaction.reply({
-				content: `You would require too much PP in ${selected_mode} to reach this amount of standard deviated pp`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
-		if (needed < 0) {
-			await interaction.reply({
-				content: `You would still surpass ${goal} standard deviated pp by ${Math.abs(
-					needed
-				).toFixed(2)}pp in ${selected_mode}`,
-				flags: MessageFlags.Ephemeral,
-			});
-			return;
-		}
-		console.log(needed);
-		const difference = Math.floor(needed) - mode_pp[selected_mode];
+			const pp: number[] = otherModes.map((mode) =>
+				Number(mode_pp[mode])
+			);
 
-		const embed = new EmbedBuilder()
-			.setColor(0xffffff)
-			.setTitle("Missing PP Std Dev Calculation")
-			.addFields({
-				name: "\u200B",
-				value: `To reach **${goal}** standard deviated pp, you need **${needed!.toFixed(
-					2
-				)}** pp in **${selected_mode}**\n**(${
-					difference < 0
-						? `${Math.abs(difference).toFixed(2)} less`
-						: `${difference.toFixed(2)} more`
-				} pp)**`,
-				inline: false,
-			});
+			const needed = calculate_missing(pp, goal);
+			if (!needed) {
+				result[selected_mode].needed = -1;
+				continue;
+			}
+			result[selected_mode].needed = Math.floor(needed);
+			result[selected_mode].difference =
+				Math.floor(needed) - mode_pp[selected_mode];
+		}
+
+		const embed = {
+			title: "Calculate Missing PP",
+			description: `To reach **${goal}** spp, **Nathanial** would need:`,
+			color: 8171961,
+			timestamp: new Date().toISOString(),
+			footer: {
+				icon_url: "https://cdn.discordapp.com/embed/avatars/0.png",
+				text: "stdev-missing",
+			},
+			thumbnail: {
+				url: "https://a.ppy.sh/9169747?1748281907.png",
+			},
+			author: {
+				name: `Nathanial | #1 spp | #1 tpp`,
+				url: "https://discordapp.com",
+				icon_url: "https://osu.ppy.sh/images/flags/GB.png",
+			},
+			fields: [
+				{
+					name: "<:osu:1405592882085367808>",
+					value: `\`${result.osu.needed}pp\` \`(${
+						result.osu.difference >= 0 ? "+" : "-"
+					}${result.osu.difference}pp)\``,
+					inline: true,
+				},
+				{
+					name: "<:taiko:1405592907733270629>",
+					value: `\`${result.taiko.needed}pp\` \`(${
+						result.taiko.difference >= 0 ? "+" : "-"
+					}${result.taiko.difference}pp)\``,
+					inline: true,
+				},
+				{
+					name: "<:catch:1405592919104294963>",
+					value: `\`${result.fruits.needed}pp\` \`(${
+						result.fruits.difference >= 0 ? "+" : "-"
+					}${result.fruits.difference}pp)\``,
+					inline: true,
+				},
+				{
+					name: "<:mania:1405592894630269069>",
+					value: `\`${result.mania.needed}pp\` \`(${
+						result.mania.difference >= 0 ? "+" : "-"
+					}${result.mania.difference}pp)\``,
+					inline: true,
+				},
+			],
+		};
 		await interaction.reply({ embeds: [embed] });
 	},
 };
