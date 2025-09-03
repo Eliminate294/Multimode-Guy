@@ -8,6 +8,7 @@ import {
 import client from "../client.js";
 import { get_osekai } from "../osekai.js";
 import { check_state } from "./embed.js";
+import { insert_osekai_stats } from "../../func/psql/insert_osekai_stats.js";
 
 let guild: Guild;
 let channel: TextChannel;
@@ -154,4 +155,5 @@ export async function update_rank(discordId: string, osuId: number) {
 	}
 
 	await member.setNickname(`${username} | #${rank}`);
+	await insert_osekai_stats(osuId, -1, rank);
 }
