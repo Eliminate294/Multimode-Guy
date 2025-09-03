@@ -145,11 +145,11 @@ export default {
 				text: "stdev-missing",
 			},
 			thumbnail: {
-				url: "https://a.ppy.sh/9169747?1748281907.png",
+				url: `https://a.ppy.sh/${db_info.user_id}?.png`,
 			},
 			author: {
 				name: `${invokerUser.username} | #${invokerUser.spp_rank} spp | #${invokerUser.tpp_rank} tpp`,
-				url: `https://osu.ppy.sh/users${db_info.user_id}`,
+				url: `https://osu.ppy.sh/users/${db_info.user_id}`,
 				icon_url: `https://osu.ppy.sh/images/flags/${invokerUser.country}.png`,
 			},
 			fields: [
