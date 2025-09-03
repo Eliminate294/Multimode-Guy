@@ -130,7 +130,7 @@ export default {
 				result[selected_mode].needed = -1;
 				continue;
 			}
-			result[selected_mode].needed = Math.floor(needed);
+			result[selected_mode].needed = needed;
 			result[selected_mode].difference =
 				Math.floor(needed) - mode_pp[selected_mode];
 		}
@@ -156,7 +156,7 @@ export default {
 				{
 					name: "<:osu:1405592882085367808>",
 					value: `\`${result.osu.needed.toFixed(2)}pp\`\n\`(${
-						result.osu.difference >= 0 ? "+" : "-"
+						result.osu.difference >= 0 ? "+" : ""
 					}${result.osu.difference.toFixed(2)}pp)\``,
 					inline: true,
 				},
@@ -168,14 +168,14 @@ export default {
 				{
 					name: "<:taiko:1405592907733270629>",
 					value: `\`${result.taiko.needed.toFixed(2)}pp\`\n\`(${
-						result.taiko.difference >= 0 ? "+" : "-"
+						result.taiko.difference >= 0 ? "+" : ""
 					}${result.taiko.difference.toFixed(2)}pp)\``,
 					inline: true,
 				},
 				{
 					name: "<:catch:1405592919104294963>",
 					value: `\`${result.fruits.needed.toFixed(2)}pp\`\n\`(${
-						result.fruits.difference >= 0 ? "+" : "-"
+						result.fruits.difference >= 0 ? "+" : ""
 					}${result.fruits.difference.toFixed(2)}pp)\``,
 					inline: true,
 				},
@@ -187,7 +187,7 @@ export default {
 				{
 					name: "<:mania:1405592894630269069>",
 					value: `\`${result.mania.needed.toFixed(2)}pp\`\n\`(${
-						result.mania.difference >= 0 ? "+" : "-"
+						result.mania.difference >= 0 ? "+" : ""
 					}${result.mania.difference.toFixed(2)}pp)\``,
 					inline: true,
 				},
