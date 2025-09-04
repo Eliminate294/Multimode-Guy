@@ -2,22 +2,15 @@ import {
 	APIEmbed,
 	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
-	EmbedBuilder,
 	InteractionContextType,
 	JSONEncodable,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
 import { get_osu_discord } from "../../func/psql/get_osu_discord.js";
-import {
-	CompleteModeStats,
-	get_mode_stats,
-} from "../../func/psql/get_mode_stats.js";
+import { get_mode_stats } from "../../func/psql/get_mode_stats.js";
 import { calculate_missing, calculate_stdev } from "../std_dev.js";
 import { get_user_pp } from "../api/get_user.js";
-import { get_osekai_data } from "../../func/psql/get_osekai_data.js";
-import { count } from "console";
-import { userObjects } from "../client.js";
 import { EmbedObject } from "../objects/embed.js";
 import { MODEEMOTES, MODES } from "../constants.js";
 import { stats } from "../../func/api/stats.js";

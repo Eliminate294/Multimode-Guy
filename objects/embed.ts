@@ -1,5 +1,4 @@
-import { userObjects } from "../client.js";
-import { UserObject } from "./user.js";
+import { userCache } from "../client.js";
 
 export class EmbedObject {
 	title?: string;
@@ -24,7 +23,7 @@ export class EmbedObject {
 	}
 
 	setRankHeader(discordId: string) {
-		const user = userObjects.get(discordId);
+		const user = userCache.get(discordId);
 		if (!user) return this;
 		Object.assign(this, user.toEmbed());
 		return this;

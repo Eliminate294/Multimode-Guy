@@ -1,13 +1,11 @@
 import {
 	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
-	EmbedBuilder,
 	InteractionContextType,
 	SlashCommandBuilder,
 } from "discord.js";
 import { get_stdev_rank } from "../osekai.js";
 import { EmbedObject } from "../objects/embed.js";
-import { userObjects } from "../client.js";
 
 export default {
 	data: new SlashCommandBuilder()
