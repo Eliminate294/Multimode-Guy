@@ -11,7 +11,7 @@ export class UserObject {
 	toEmbed() {
 		return {
 			author: {
-				name: `${this.username} | #${this.spp_rank} spp | #${this.tpp_rank} spp`,
+				name: `${this.username} | #${this.spp_rank} spp | #${this.tpp_rank} tpp`,
 				url: `https://osu.ppy.sh/users/${this.osuId}`,
 				icon_url: `https://osu.ppy.sh/images/flags/${this.country}.png`,
 			},
