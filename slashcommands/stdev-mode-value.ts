@@ -104,7 +104,7 @@ export default {
 				"\u200B",
 				`${calcStdev.get("osu")} spp\n${calcStdev.get(
 					"taiko"
-				)}\n${calcStdev.get("fruits")} spp\n${calcStdev.get(
+				)} spp\n${calcStdev.get("fruits")} spp\n${calcStdev.get(
 					"mania"
 				)} spp`,
 				true
