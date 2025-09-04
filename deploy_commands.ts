@@ -31,13 +31,28 @@ export async function deployCommands(): Promise<void> {
 	}
 
 	const rest = new REST({ version: "10" }).setToken(
-		process.env.DISCORD_TOKEN!
+		process.env.DEVMODE === "true"
+			? process.env.DISCORD_DEV_TOKEN!
+			: process.env.DISCORD_TOKEN!
 	);
 
 	try {
-		await rest.put(Routes.applicationCommands("1383493582060654722"), {
-			body: commands,
-		});
+		if (process.env.DEVMODE !== "true") {
+			await rest.put(Routes.applicationCommands("1383493582060654722"), {
+				body: commands,
+			});
+		} else {
+			console.log("Registering commands in dev server");
+			await rest.put(
+				Routes.applicationGuildCommands(
+					"1412952345364664360",
+					"1383496358341644418"
+				),
+				{
+					body: commands,
+				}
+			);
+		}
 		for (const command of commands) {
 			console.log(`Successfully imported ${command.name}`);
 		}
