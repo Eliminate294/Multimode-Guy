@@ -13,6 +13,10 @@ import {
 import { get_osu_discord } from "../../func/psql/get_osu_discord.js";
 import { calculate_stdev } from "../std_dev.js";
 import { EmbedBuilder } from "@discordjs/builders";
+import { EmbedObject } from "../objects/embed.js";
+import { get_user_pp } from "../api/get_user.js";
+import { MODES } from "../constants.js";
+import { stats } from "../../func/api/stats.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -27,80 +31,81 @@ export default {
 			InteractionContextType.BotDM,
 			InteractionContextType.PrivateChannel,
 		])
-		.addMentionableOption((option) =>
+		.addStringOption((option) =>
 			option
-				.setName("user")
-				.setDescription("Choose a user from the server")
+				.setName("username")
+				.setDescription("Username of the player")
 				.setRequired(false)
 		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
-		const param = interaction.options.getMentionable("user", false);
-		const user: GuildMember = (
-			param ? param : interaction.user
-		) as GuildMember;
-		const tokenData = await get_osu_discord(user.id);
+		const user = interaction.options.getString("username", false);
+		const tokenData = await get_osu_discord(interaction.user.id);
 		if (!tokenData) {
 			await interaction.reply({
 				content:
-					"User could not be found, use /link to add your account to the bot, or tell the user you are using to do so",
+					"You do not have a linked account with the bot, use /link to link your account",
 				flags: MessageFlags.Ephemeral,
 			});
 			return;
 		}
-		const allStats = await get_mode_stats(tokenData.user_id);
-		let pp: Map<string, number> = new Map();
-
-		for (const mode in allStats) {
-			pp.set(
-				mode,
-				Number(allStats[mode as keyof CompleteModeStats][0].pp)
+		await interaction.deferReply();
+		let osuId: number = tokenData.user_id;
+		if (user) {
+			osuId = await stats(user, tokenData.access_token, "osu").then(
+				(data) => data?.id
 			);
 		}
-		const stdev = calculate_stdev(Array.from(pp.values()));
+		const pp = await get_user_pp(
+			interaction.user.id,
+			osuId,
+			tokenData.access_token
+		);
+		if (!pp) {
+			await interaction.followUp({
+				content: "Failed to fetch user pp data",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
+		const stdev = calculate_stdev(Object.values(pp!));
 		let calcStdev: Map<string, number> = new Map();
-		console.log(stdev);
 
-		console.log(pp);
-		for (const mode in allStats) {
+		for (const mode of MODES) {
 			const calcPP: Map<string, number> = new Map();
-			pp.forEach((pp, mode_key) => {
+			Object.entries(pp!).forEach(([mode_key, pp]) => {
 				if (mode_key !== mode) {
 					calcPP.set(mode_key, pp);
 				} else {
 					calcPP.set(mode_key, pp + 1);
 				}
 			});
-			const modeStdev = await calculate_stdev(
-				Array.from(calcPP.values())
-			);
+			const modeStdev = calculate_stdev(Array.from(calcPP.values()));
 			calcStdev.set(
 				mode,
 				Math.round(Math.abs(stdev - modeStdev) * 100) / 100
 			);
-			console.log(Math.abs(stdev - modeStdev));
 		}
 
-		const embed = new EmbedBuilder()
-			.setColor(0xffffff)
-			.setTitle("Standard Deviated Mode Value")
-			.addFields(
-				{
-					name: "Modes",
-					value: "Standard:\nTaiko:\nCTB:\nMania:",
-					inline: true,
-				},
-				{
-					name: "\u200B",
-					value: `${calcStdev.get("osu")} spp\n${calcStdev.get(
-						"taiko"
-					)} spp\n${calcStdev.get("fruits")} spp\n${calcStdev.get(
-						"mania"
-					)} spp`,
-					inline: true,
-				}
+		const embed = new EmbedObject()
+			.setDefaults(this.data.name)
+			.setRankHeader(interaction.user.id)
+			.setThumbnail(osuId)
+			.setDescription(
+				`Standard deviated pp gained **per 1pp** in each gamemode for **${
+					user ? user : tokenData.username
+				}**`
+			)
+			.addField("Modes", "Standard:\nTaiko:\nCTB:\nMania:", true)
+			.addField(
+				"\u200B",
+				`${calcStdev.get("osu")} spp\n${calcStdev.get(
+					"taiko"
+				)}\n${calcStdev.get("fruits")} spp\n${calcStdev.get(
+					"mania"
+				)} spp`,
+				true
 			);
 
-		interaction.reply({ embeds: [embed] });
+		interaction.followUp({ embeds: [embed] });
 	},
 };
