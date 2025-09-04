@@ -1,3 +1,4 @@
+import { userObjects } from "../client.js";
 import { UserObject } from "./user.js";
 
 export class EmbedObject {
@@ -22,8 +23,17 @@ export class EmbedObject {
 		return this;
 	}
 
-	setRankHeader(user: UserObject) {
+	setRankHeader(discordId: string) {
+		const user = userObjects.get(discordId);
+		if (!user) return this;
 		Object.assign(this, user.toEmbed());
+		return this;
+	}
+
+	setThumbnail(osuId: number) {
+		this.thumbnail = {
+			url: `https://a.ppy.sh/${osuId}?.png`,
+		};
 		return this;
 	}
 
