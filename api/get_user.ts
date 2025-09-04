@@ -1,3 +1,4 @@
+import { get_users } from "../../func/api/get_users.js";
 import { stats } from "../../func/api/stats.js";
 import { get_token } from "../../func/psql/get_token.js";
 
@@ -6,11 +7,14 @@ const modes: Mode[] = ["osu", "taiko", "fruits", "mania"];
 
 export async function get_user_pp(
 	invokerId: string,
-	username: string
+	osuId: number,
+	token?: string | void
 ): Promise<Record<Mode, number> | void> {
-	const token = await get_token(invokerId, true);
 	if (!token) {
-		return;
+		token = await get_token(invokerId, true);
+		if (!token) {
+			return;
+		}
 	}
 	const modePP: Record<Mode, number> = {
 		osu: 0,
@@ -18,12 +22,14 @@ export async function get_user_pp(
 		fruits: 0,
 		mania: 0,
 	};
-	for (const mode of modes) {
-		const data = await stats(username, token, mode);
-		if (data) {
-			modePP[mode] = data.statistics.pp;
-		}
+	const data = await get_users(osuId!, token);
+	if (!data) {
+		return;
 	}
-	console.log(modePP);
+	for (const mode of Object.keys(
+		data.users[0].statistics_rulesets
+	) as Mode[]) {
+		modePP[mode] = data.users[0].statistics_rulesets[mode].pp;
+	}
 	return modePP;
 }
