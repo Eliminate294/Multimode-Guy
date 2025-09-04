@@ -15,9 +15,6 @@ export class UserObject {
 				url: `https://osu.ppy.sh/users/${this.osuId}`,
 				icon_url: `https://osu.ppy.sh/images/flags/${this.country}.png`,
 			},
-			thumbnail: {
-				url: `https://a.ppy.sh/${this.osuId}?.png`,
-			},
 		};
 	}
 }
