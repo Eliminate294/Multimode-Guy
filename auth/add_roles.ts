@@ -6,7 +6,7 @@ import {
 	TextChannel,
 } from "discord.js";
 import client from "../client.js";
-import { get_osekai } from "../osekai.js";
+import { get_osekai, OSEKAI_STATS } from "../osekai.js";
 import { check_state } from "./embed.js";
 import { insert_osekai_stats } from "../../func/psql/insert_osekai_stats.js";
 
@@ -138,14 +138,22 @@ export async function update_rank(discordId: string, osuId: number) {
 			return;
 		}
 	}
-
-	const data = await get_osekai(osuId);
+	let data: Record<string, any> | undefined;
+	Object.entries(OSEKAI_STATS).forEach(([key, value], index) => {
+		if (value.userid === osuId.toString()) {
+			data = value;
+			return;
+		}
+	});
 	if (!data) {
-		console.log(`Couldnt get Osekai user data for user ${osuId}`);
-		return;
+		data = await get_osekai(osuId);
+		if (!data) {
+			console.log(`Couldnt get Osekai user data for user ${osuId}`);
+			return;
+		}
 	}
 
-	const rank: number | null = data[0]?.rank;
+	const rank: number | null = Number(data[0]?.rank);
 	const username: string | null = data[0]?.name;
 
 	if (!rank || !username) {
@@ -173,5 +181,11 @@ export async function update_rank(discordId: string, osuId: number) {
 	}
 
 	await member.setNickname(`${username} | #${rank}`);
-	await insert_osekai_stats(osuId, -1, rank);
+	await insert_osekai_stats(
+		osuId,
+		-1,
+		rank,
+		data[0].stdev_pp,
+		data[0].total_pp
+	);
 }
