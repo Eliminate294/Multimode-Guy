@@ -14,6 +14,7 @@ import {
 	get_mode_stats,
 } from "../../func/psql/get_mode_stats.js";
 import { EmbedObject } from "../objects/embed.js";
+import { MODEEMOTES } from "../constants.js";
 
 const modes = ["osu", "taiko", "fruits", "mania"] as const;
 
@@ -103,7 +104,7 @@ export default {
 			.setThumbnail(db_info.user_id)
 			.addField(
 				"Modes",
-				"<:osu:1405592882085367808> Standard:\n<:taiko:1405592907733270629> Taiko:\n<:catch:1405592919104294963> CTB:\n<:mania:1405592894630269069> Mania:",
+				`${MODEEMOTES.osu} Standard:\n${MODEEMOTES.taiko} Taiko:\n${MODEEMOTES.fruits} CTB:\n${MODEEMOTES.mania} Mania:`,
 				true
 			)
 			.addField(
