@@ -138,13 +138,9 @@ export async function update_rank(discordId: string, osuId: number) {
 			return;
 		}
 	}
-	let data: Record<string, any> | undefined;
-	Object.entries(OSEKAI_STATS).forEach(([key, value], index) => {
-		if (value.userid === osuId.toString()) {
-			data = value;
-			return;
-		}
-	});
+	let data: Record<string, any> | undefined = OSEKAI_STATS.get(
+		osuId.toString()
+	);
 	if (!data) {
 		data = await get_osekai(osuId);
 		if (!data) {
