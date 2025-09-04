@@ -17,6 +17,8 @@ import { remove_server } from "../func/psql/remove_server.js";
 import { UserObject } from "./objects/user.js";
 import { get_osu_discord } from "../func/psql/get_osu_discord.js";
 import { get_osekai_data } from "../func/psql/get_osekai_data.js";
+import { UserCache } from "./objects/cache/user-cache.js";
+import { insert_osekai_stats } from "../func/psql/insert_osekai_stats.js";
 
 interface ExtendedClient extends Client {
 	commands: Collection<
@@ -41,7 +43,15 @@ const client: ExtendedClient = new Client({
 client.commands = new Collection();
 
 export const guildObjects = new Map<string, GuildObject>();
-export const userObjects = new Map<string, UserObject>();
+export const userCache = new UserCache(1000 * 60 * 20, (user) =>
+	insert_osekai_stats(
+		user.osuId,
+		user.tpp_rank,
+		user.spp_rank,
+		user.spp,
+		user.tpp
+	)
+);
 const defaultPermissions = 0;
 
 client.once(Events.ClientReady, async (readyClient) => {
@@ -106,7 +116,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		return;
 	}
 	try {
-		if (!userObjects.has(interaction.user.id)) {
+		if (!userCache.has(interaction.user.id)) {
 			const osuData = await get_osu_discord(interaction.user.id);
 			const osekaiData = await get_osekai_data(
 				undefined,
@@ -120,8 +130,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 				});
 				return;
 			}
-			userObjects.set(
-				interaction.user.id,
+			userCache.set(
 				new UserObject(
 					osuData.user_id,
 					interaction.user.id,
