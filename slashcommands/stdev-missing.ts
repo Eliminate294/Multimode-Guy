@@ -20,6 +20,7 @@ import { count } from "console";
 import { userObjects } from "../client.js";
 import { EmbedObject } from "../objects/embed.js";
 import { MODES } from "../constants.js";
+import { stats } from "../../func/api/stats.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -47,16 +48,16 @@ export default {
 		.addStringOption((option) =>
 			option
 				.setName("username")
-				.setDescription("The username of the player")
+				.setDescription("Username of the player")
 				.setRequired(false)
 		),
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const user = interaction.options.getString("username", false);
 		const discord_id = interaction.user.id;
-		const db_info = await get_osu_discord(discord_id);
+		const tokenData = await get_osu_discord(discord_id);
 
-		if (!db_info) {
+		if (!tokenData) {
 			console.log(
 				"User does not have a valid database entry:",
 				interaction.user.username
@@ -70,10 +71,17 @@ export default {
 		}
 
 		let mode_pp;
-		let invokerUser: Record<string, number | string> = {};
 		let username: string = user ? user : "N/A";
+		let osuId: number = tokenData.user_id;
 		if (user) {
-			mode_pp = await get_user_pp(interaction.user.id, user);
+			osuId = await stats(user, tokenData.access_token, "osu").then(
+				(data) => data?.id
+			);
+			mode_pp = await get_user_pp(
+				interaction.user.id,
+				osuId,
+				tokenData.access_token
+			);
 			if (!mode_pp) {
 				await interaction.reply({
 					content: "Failed to fetch data for specified user",
@@ -81,26 +89,9 @@ export default {
 				});
 				return;
 			}
-			const invoker_stats = await get_osekai_data(
-				undefined,
-				interaction.user.id
-			);
-			invokerUser = {
-				username: db_info.username,
-				country: db_info.country,
-				spp_rank: invoker_stats?.spp_rank ?? -1,
-				tpp_rank: invoker_stats?.tpp_rank ?? -1,
-			};
 		} else {
-			username = db_info.username;
-			const mode_stats = await get_mode_stats(db_info.user_id, true);
-			const invoker_stats = await get_osekai_data(db_info.user_id);
-			invokerUser = {
-				username: username,
-				country: db_info.country,
-				spp_rank: invoker_stats?.spp_rank ?? -1,
-				tpp_rank: invoker_stats?.tpp_rank ?? -1,
-			};
+			username = tokenData.username;
+			const mode_stats = await get_mode_stats(tokenData.user_id, true);
 			mode_pp = {
 				osu: mode_stats.osu[0].pp,
 				taiko: mode_stats.taiko[0].pp,
@@ -140,8 +131,9 @@ export default {
 				Math.floor(needed) - mode_pp[selected_mode];
 		}
 		const embed = new EmbedObject()
-			.setRankHeader(userObjects.get(interaction.user.id)!)
+			.setRankHeader(interaction.user.id)
 			.setDefaults(this.data.name)
+			.setThumbnail(osuId)
 			.setDescription(
 				`To reach **${goal}** spp, **${username}** would need:`
 			);
