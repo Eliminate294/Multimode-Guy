@@ -47,13 +47,19 @@ export async function update_osekai_site(): Promise<void> {
 	}
 }
 
-export async function get_stdev_rank(pp: number): Promise<number> {
+export async function get_stdev_rank(
+	pp: number
+): Promise<[number, number, string]> {
 	if (!stats) {
 		throw new Error("Stats not defined");
 	}
 
 	let right = Object.keys(stats).length - 1;
 	let left = 0;
+
+	if (pp < Number(stats[right].spp)) {
+		return [-1, 0, ""];
+	}
 
 	while (left < right) {
 		let mid: number = Math.floor((left + right) / 2);
@@ -66,7 +72,7 @@ export async function get_stdev_rank(pp: number): Promise<number> {
 		}
 	}
 
-	return left + 1;
+	return [left + 1, Number(stats[left].userid), stats[left].username];
 }
 
 export async function get_stdev_pp(
