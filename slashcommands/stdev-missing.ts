@@ -139,12 +139,12 @@ export default {
 					Object.values(mode_pp).map((v) => Number(v))
 				).toFixed(
 					0
-				)}** spp, in order to reach **${goal}** spp, **${username}** would need:`
+				)}** spp, in order to reach **${goal}** spp, **${username}** in one of the following modes would need:`
 			);
 		for (const mode of MODES) {
 			let value: string;
 			if (result[mode].needed === undefined) {
-				value = "`inf\n(inf)`";
+				value = "`Not Possible\n(+inf)`";
 			} else {
 				const increase: boolean = result[mode].difference! >= 0;
 				value = `\`${result[mode].needed!.toFixed(2)}\`\n\`(${
