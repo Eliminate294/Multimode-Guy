@@ -19,7 +19,7 @@ import { get_osekai_data } from "../../func/psql/get_osekai_data.js";
 import { count } from "console";
 import { userObjects } from "../client.js";
 import { EmbedObject } from "../objects/embed.js";
-import { MODES } from "../constants.js";
+import { MODEEMOTES, MODES } from "../constants.js";
 import { stats } from "../../func/api/stats.js";
 
 export default {
@@ -141,12 +141,6 @@ export default {
 					0
 				)}** spp, in order to reach **${goal}** spp, **${username}** would need:`
 			);
-		const modeEmotes = {
-			osu: "<:osu:1405592882085367808>",
-			taiko: "<:taiko:1405592907733270629>",
-			fruits: "<:catch:1405592919104294963>",
-			mania: "<:mania:1405592894630269069>",
-		};
 		for (const mode of MODES) {
 			let value: string;
 			if (result[mode].needed === undefined) {
@@ -163,7 +157,7 @@ export default {
 					) * 100
 				).toFixed(0)}%)\``;
 			}
-			embed.addField(modeEmotes[mode], value, true);
+			embed.addField(MODEEMOTES[mode], value, true);
 			if (mode === "osu" || mode === "fruits") {
 				embed.addBlankField();
 			}

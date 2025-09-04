@@ -15,7 +15,7 @@ import { calculate_stdev } from "../std_dev.js";
 import { EmbedBuilder } from "@discordjs/builders";
 import { EmbedObject } from "../objects/embed.js";
 import { get_user_pp } from "../api/get_user.js";
-import { MODES } from "../constants.js";
+import { MODEEMOTES, MODES } from "../constants.js";
 import { stats } from "../../func/api/stats.js";
 
 export default {
@@ -97,7 +97,7 @@ export default {
 			)
 			.addField(
 				"Modes",
-				"<:osu:1405592882085367808> Standard:\n<:taiko:1405592907733270629> Taiko:\n<:catch:1405592919104294963> CTB:\n<:mania:1405592894630269069> Mania:",
+				`${MODEEMOTES.osu} Standard:\n${MODEEMOTES.taiko} Taiko:\n${MODEEMOTES.fruits} CTB:\n${MODEEMOTES.mania} Mania:`,
 				true
 			)
 			.addField(

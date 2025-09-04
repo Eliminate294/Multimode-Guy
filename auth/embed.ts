@@ -59,10 +59,28 @@ export function get_token(token: string): string | null {
 }
 
 client.once("ready", async () => {
-	guild = await client.guilds.fetch("1371190654922657954");
-	channel = (await guild.channels.fetch(
-		"1397415134401527959"
-	)) as TextChannel;
+	try {
+		guild = await client.guilds.fetch("1371190654922657954");
+	} catch {
+		try {
+			guild = await client.guilds.fetch("1383496358341644418");
+		} catch {
+			console.error("Failed to fetch both guilds");
+		}
+	}
+	try {
+		channel = (await guild.channels.fetch(
+			"1397415134401527959"
+		)) as TextChannel;
+	} catch {
+		try {
+			channel = (await guild.channels.fetch(
+				"1383496359373574146"
+			)) as TextChannel;
+		} catch {
+			console.error("Failed to fetch both channels");
+		}
+	}
 });
 
 client.on("interactionCreate", async (interaction) => {

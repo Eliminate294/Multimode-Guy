@@ -11,7 +11,7 @@ import { EmbedObject } from "../objects/embed.js";
 import { calculate_missing } from "../std_dev.js";
 import { get_user_pp } from "../api/get_user.js";
 import { get_osu_discord } from "../../func/psql/get_osu_discord.js";
-import { MODES } from "../constants.js";
+import { MODEEMOTES, MODES } from "../constants.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -95,12 +95,6 @@ export default {
 		// literally copy pasted everything below this point from stdev-missing
 		// will probably make it a function instead
 		// this is good for now...
-		const modeEmotes = {
-			osu: "<:osu:1405592882085367808>",
-			taiko: "<:taiko:1405592907733270629>",
-			fruits: "<:catch:1405592919104294963>",
-			mania: "<:mania:1405592894630269069>",
-		};
 		const embed = new EmbedObject()
 			.setDefaults(this.data.name)
 			.setRankHeader(interaction.user.id)
@@ -124,7 +118,7 @@ export default {
 					) * 100
 				).toFixed(0)}%)\``;
 			}
-			embed.addField(modeEmotes[mode], value, true);
+			embed.addField(MODEEMOTES[mode], value, true);
 			if (mode === "osu" || mode === "fruits") {
 				embed.addBlankField();
 			}
