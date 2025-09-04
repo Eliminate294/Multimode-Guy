@@ -13,6 +13,7 @@ import {
 	CompleteModeStats,
 	get_mode_stats,
 } from "../../func/psql/get_mode_stats.js";
+import { EmbedObject } from "../objects/embed.js";
 
 const modes = ["osu", "taiko", "fruits", "mania"] as const;
 
@@ -96,29 +97,28 @@ export default {
 			throw new Error("Haven't received 4 inputs from stdev command");
 		}
 		const stdev_pp = calculate_stdev(pp);
-		console.log("pp array values:", pp);
-		const embed = new EmbedBuilder()
-			.setColor(0xffffff)
-			.setTitle("Standard Deviated PP Calculation")
-			.addFields(
-				{
-					name: "Modes",
-					value: "Standard:\nTaiko:\nCTB:\nMania:",
-					inline: true,
-				},
-				{
-					name: "\u200B",
-					value: `${pp[0]} pp\n${pp[1]} pp\n${pp[2]} pp\n${pp[3]} pp`,
-					inline: true,
-				},
-				{
-					name: "\u200B",
-					value: `Would result in **${stdev_pp.toFixed(
-						2
-					)}pp** standard deviated`,
-					inline: false,
-				}
+		const embed = new EmbedObject()
+			.setDefaults(this.data.name)
+			.setRankHeader(interaction.user.id)
+			.setThumbnail(db_info.user_id)
+			.addField(
+				"Modes",
+				"<:osu:1405592882085367808> Standard:\n<:taiko:1405592907733270629> Taiko:\n<:catch:1405592919104294963> CTB:\n<:mania:1405592894630269069> Mania:",
+				true
+			)
+			.addField(
+				"\u200B",
+				`${pp[0]} pp\n${pp[1]} pp\n${pp[2]} pp\n${pp[3]} pp`,
+				true
+			)
+			.addField(
+				"\u200B",
+				`Would result in **${stdev_pp.toFixed(
+					2
+				)}pp** standard deviated`,
+				false
 			);
+
 		await interaction.reply({ embeds: [embed] });
 	},
 };

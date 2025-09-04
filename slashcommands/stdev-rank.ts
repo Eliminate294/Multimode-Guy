@@ -6,6 +6,8 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { get_stdev_rank } from "../osekai.js";
+import { EmbedObject } from "../objects/embed.js";
+import { userObjects } from "../client.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -31,16 +33,21 @@ export default {
 
 	async execute(interaction: ChatInputCommandInteraction) {
 		const pp = interaction.options.getInteger("pp", true);
-		const rank = await get_stdev_rank(pp);
+		const [rank, userId, username] = await get_stdev_rank(pp);
 
-		const embed = new EmbedBuilder()
-			.setColor(0xffffff)
-			.setTitle("Standard Deviated Rank Calculation")
-			.addFields({
-				name: "\u200B",
-				value: `Your stdev rank would be **#${rank}** with **${pp}pp**`,
-				inline: true,
-			});
+		const embed = new EmbedObject()
+			.setDefaults(this.data.name)
+			.setRankHeader(interaction.user.id)
+			.setThumbnail(userId);
+		if (rank === -1) {
+			embed.setDescription(
+				`With **${pp}spp**, your rank wouldn't be in the top 2500 on the **standard deviated** leaderboards`
+			);
+		} else {
+			embed.setDescription(
+				`With **${pp}spp**, your rank on the **standard deviated** leaderboards would be **#${rank}**, currently held by **${username}**`
+			);
+		}
 
 		interaction.reply({ embeds: [embed] });
 	},
