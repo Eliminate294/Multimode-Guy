@@ -1,8 +1,10 @@
 import {
+	APIEmbed,
 	ApplicationIntegrationType,
 	ChatInputCommandInteraction,
 	EmbedBuilder,
 	InteractionContextType,
+	JSONEncodable,
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
@@ -15,6 +17,9 @@ import { calculate_missing } from "../std_dev.js";
 import { get_user_pp } from "../api/get_user.js";
 import { get_osekai_data } from "../../func/psql/get_osekai_data.js";
 import { count } from "console";
+import { userObjects } from "../client.js";
+import { EmbedObject } from "../objects/embed.js";
+import { MODES } from "../constants.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -105,7 +110,7 @@ export default {
 		}
 
 		const goal = interaction.options.getInteger("goal", true);
-		const result: Record<Mode, Record<string, number>> = {
+		const result: Record<Mode, Record<string, number | undefined>> = {
 			osu: { needed: 0, difference: 0 },
 			taiko: { needed: 0, difference: 0 },
 			fruits: { needed: 0, difference: 0 },
@@ -127,72 +132,49 @@ export default {
 
 			const needed = calculate_missing(pp, goal);
 			if (!needed) {
-				result[selected_mode].needed = -1;
+				result[selected_mode].needed = undefined;
 				continue;
 			}
 			result[selected_mode].needed = needed;
 			result[selected_mode].difference =
 				Math.floor(needed) - mode_pp[selected_mode];
 		}
-
-		const embed = {
-			//title: "Calculate Missing PP",
-			description: `To reach **${goal}** spp, **${username}** would need:`,
-			color: 8171961,
-			timestamp: new Date().toISOString(),
-			footer: {
-				icon_url: "https://cdn.discordapp.com/embed/avatars/0.png",
-				text: "stdev-missing",
-			},
-			thumbnail: {
-				url: `https://a.ppy.sh/${db_info.user_id}?.png`,
-			},
-			author: {
-				name: `${invokerUser.username} | #${invokerUser.spp_rank} spp | #${invokerUser.tpp_rank} tpp`,
-				url: `https://osu.ppy.sh/users/${db_info.user_id}`,
-				icon_url: `https://osu.ppy.sh/images/flags/${invokerUser.country}.png`,
-			},
-			fields: [
-				{
-					name: "<:osu:1405592882085367808>",
-					value: `\`${result.osu.needed.toFixed(2)}pp\`\n\`(${
-						result.osu.difference >= 0 ? "+" : ""
-					}${result.osu.difference.toFixed(2)}pp)\``,
-					inline: true,
-				},
-				{
-					name: "\u200B",
-					value: "\u200B",
-					inline: true,
-				},
-				{
-					name: "<:taiko:1405592907733270629>",
-					value: `\`${result.taiko.needed.toFixed(2)}pp\`\n\`(${
-						result.taiko.difference >= 0 ? "+" : ""
-					}${result.taiko.difference.toFixed(2)}pp)\``,
-					inline: true,
-				},
-				{
-					name: "<:catch:1405592919104294963>",
-					value: `\`${result.fruits.needed.toFixed(2)}pp\`\n\`(${
-						result.fruits.difference >= 0 ? "+" : ""
-					}${result.fruits.difference.toFixed(2)}pp)\``,
-					inline: true,
-				},
-				{
-					name: "\u200B",
-					value: "\u200B",
-					inline: true,
-				},
-				{
-					name: "<:mania:1405592894630269069>",
-					value: `\`${result.mania.needed.toFixed(2)}pp\`\n\`(${
-						result.mania.difference >= 0 ? "+" : ""
-					}${result.mania.difference.toFixed(2)}pp)\``,
-					inline: true,
-				},
-			],
+		const embed = new EmbedObject()
+			.setRankHeader(userObjects.get(interaction.user.id)!)
+			.setDefaults(this.data.name)
+			.setDescription(
+				`To reach **${goal}** spp, **${username}** would need:`
+			);
+		const modeEmotes = {
+			osu: "<:osu:1405592882085367808>",
+			taiko: "<:taiko:1405592907733270629>",
+			fruits: "<:catch:1405592919104294963>",
+			mania: "<:mania:1405592894630269069>",
 		};
-		await interaction.reply({ embeds: [embed] });
+		for (const mode of MODES) {
+			let value: string;
+			if (result[mode].needed === undefined) {
+				value = "`inf\n(inf)`";
+			} else {
+				const increase: boolean = result[mode].difference! >= 0;
+				value = `\`${result[mode].needed!.toFixed(2)}\`\n\`(${
+					increase ? "+" : ""
+				}${result[mode].difference!.toFixed(2)} ${
+					increase ? "\u25B2" : "\u25BC"
+				}${(
+					Math.abs(
+						(result[mode].needed! - mode_pp[mode]) / mode_pp[mode]
+					) * 100
+				).toFixed(0)}%)\``;
+			}
+			embed.addField(modeEmotes[mode], value, true);
+			if (mode === "osu" || mode === "fruits") {
+				embed.addBlankField();
+			}
+		}
+
+		await interaction.reply({
+			embeds: [embed as JSONEncodable<APIEmbed>],
+		});
 	},
 };
