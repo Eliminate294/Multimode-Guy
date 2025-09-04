@@ -128,6 +128,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
 					osuData.username,
 					osekaiData.spp_rank,
 					osekaiData.tpp_rank,
+					osekaiData.spp,
+					osekaiData.tpp,
 					osuData.country
 				)
 			);
