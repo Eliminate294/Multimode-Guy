@@ -6,13 +6,17 @@ import {
 	SlashCommandBuilder,
 	CommandInteraction,
 	Guild,
+	MessageFlagsBitField,
 } from "discord.js";
 import { deployCommands } from "./deploy_commands.js";
 import { privateVCListener } from "./private_channels.js";
-import { GuildObject } from "./guild.js";
+import { GuildObject } from "./objects/guild.js";
 import { get_discord_servers } from "../func/psql/get_discord_servers.js";
 import { update_server } from "../func/psql/update_server.js";
 import { remove_server } from "../func/psql/remove_server.js";
+import { UserObject } from "./objects/user.js";
+import { get_osu_discord } from "../func/psql/get_osu_discord.js";
+import { get_osekai_data } from "../func/psql/get_osekai_data.js";
 
 interface ExtendedClient extends Client {
 	commands: Collection<
@@ -37,6 +41,7 @@ const client: ExtendedClient = new Client({
 client.commands = new Collection();
 
 export const guildObjects = new Map<string, GuildObject>();
+export const userObjects = new Map<string, UserObject>();
 const defaultPermissions = 0;
 
 client.once(Events.ClientReady, async (readyClient) => {
@@ -101,6 +106,32 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		return;
 	}
 	try {
+		if (!userObjects.has(interaction.user.id)) {
+			const osuData = await get_osu_discord(interaction.user.id);
+			const osekaiData = await get_osekai_data(
+				undefined,
+				interaction.user.id
+			);
+			if (!osuData || !osekaiData) {
+				interaction.reply({
+					content:
+						"Failed to fetch user data, is your account linked? (try /link)",
+					flags: MessageFlagsBitField.Flags.Ephemeral,
+				});
+				return;
+			}
+			userObjects.set(
+				interaction.user.id,
+				new UserObject(
+					osuData.user_id,
+					interaction.user.id,
+					osuData.username,
+					osekaiData.spp_rank,
+					osekaiData.tpp_rank,
+					osuData.country
+				)
+			);
+		}
 		await command.execute(interaction);
 	} catch (err) {
 		console.error(err);
@@ -108,7 +139,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
 });
 
 export const startBot = async () => {
-	await client.login(process.env.DISCORD_BOT_TOKEN);
+	if (process.env.DEVMODE === "true") {
+		await client.login(process.env.DISCORD_DEV_TOKEN);
+	} else {
+		await client.login(process.env.DISCORD_TOKEN);
+	}
 };
 
 export default client;
