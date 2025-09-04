@@ -13,7 +13,7 @@ import {
 	CompleteModeStats,
 	get_mode_stats,
 } from "../../func/psql/get_mode_stats.js";
-import { calculate_missing } from "../std_dev.js";
+import { calculate_missing, calculate_stdev } from "../std_dev.js";
 import { get_user_pp } from "../api/get_user.js";
 import { get_osekai_data } from "../../func/psql/get_osekai_data.js";
 import { count } from "console";
@@ -135,7 +135,11 @@ export default {
 			.setDefaults(this.data.name)
 			.setThumbnail(osuId)
 			.setDescription(
-				`To reach **${goal}** spp, **${username}** would need:`
+				`Currently at **${calculate_stdev(
+					Object.values(mode_pp).map((v) => Number(v))
+				).toFixed(
+					0
+				)}** spp, in order to reach **${goal}** spp, **${username}** would need:`
 			);
 		const modeEmotes = {
 			osu: "<:osu:1405592882085367808>",
