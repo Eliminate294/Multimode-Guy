@@ -6,6 +6,7 @@ import {
 	SlashCommandBuilder,
 } from "discord.js";
 import { discord_token } from "../auth/embed.js";
+import { remove_token } from "../../func/psql/remove_token.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -22,6 +23,7 @@ export default {
 		]),
 
 	async execute(interaction: ChatInputCommandInteraction) {
+		await remove_token(interaction.user.id);
 		const token = discord_token(interaction.user.id);
 		const oauth = `https://osu.ppy.sh/oauth/authorize?client_id=${
 			process.env.OSU_CLIENT_ID
