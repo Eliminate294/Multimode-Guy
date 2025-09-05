@@ -1,6 +1,9 @@
+import { beatmaps } from "../../func/api/beatmaps.js";
 import { get_users } from "../../func/api/get_users.js";
+import { stats } from "../../func/api/stats.js";
 import { get_token } from "../../func/psql/get_token.js";
 import { userCache } from "../client.js";
+import { MODES } from "../constants.js";
 import { calculate_stdev } from "../std_dev.js";
 
 type Mode = "osu" | "taiko" | "fruits" | "mania";
@@ -38,4 +41,46 @@ export async function get_user_pp(
 		userObj.spp = calculate_stdev(Object.values(modePP));
 	}
 	return modePP;
+}
+
+export async function get_user(
+	invokerId: string,
+	osuId: number,
+	mode?: Mode,
+	token?: string | void
+): Promise<void | Record<string, any>> {
+	if (!token) {
+		token = await get_token(invokerId, true);
+		if (!token) {
+			return;
+		}
+	}
+
+	const data = await stats(osuId, token, mode);
+	if (!data) {
+		return;
+	}
+
+	return data;
+}
+
+export async function get_user_scores(
+	invokerId: string,
+	osuId: number,
+	mode?: Mode,
+	token?: string | void
+): Promise<Record<string, any>[] | void> {
+	if (!token) {
+		token = await get_token(invokerId, true);
+		if (!token) {
+			return;
+		}
+	}
+
+	const data = await beatmaps(osuId, token, mode, "best");
+	if (!data) {
+		return;
+	}
+
+	return data;
 }
