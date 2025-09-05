@@ -117,6 +117,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 	try {
 		if (!userCache.has(interaction.user.id)) {
+			if (command.data.name === "link") {
+				await command.execute(interaction);
+				return;
+			}
 			const osuData = await get_osu_discord(interaction.user.id);
 			const osekaiData = await get_osekai_data(
 				undefined,
