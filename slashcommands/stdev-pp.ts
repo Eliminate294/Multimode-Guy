@@ -63,7 +63,8 @@ export default {
 		);
 		if (!mode_pp) {
 			await interaction.reply({
-				content: "Failed to fetch data for specified user",
+				content:
+					"Failed to fetch data for specified user, use /link then try again",
 				flags: MessageFlags.Ephemeral,
 			});
 			return;

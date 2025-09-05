@@ -63,7 +63,8 @@ export default {
 		);
 		if (!pp) {
 			await interaction.followUp({
-				content: "Failed to fetch user pp data",
+				content:
+					"Failed to fetch data for specified user, use /link then try again",
 				flags: MessageFlags.Ephemeral,
 			});
 		}
