@@ -124,7 +124,7 @@ export default {
 					osu_stats.playmode
 				}**, where they would gain **${change.toFixed(
 					2
-				)}pp** pushing them up to **${total.toFixed(2)}pp in total.**`
+				)}pp** pushing them up to **${total.toFixed(2)}pp** in total.`
 			);
 
 		await interaction.reply({
