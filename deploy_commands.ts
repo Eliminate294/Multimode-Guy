@@ -22,12 +22,16 @@ export async function deployCommands(): Promise<void> {
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = (await import(pathToFileURL(filePath).href)).default;
-		if ("data" in command) {
-			commands.push(command.data.toJSON());
-			client.commands.set(command.data.name, command);
-		} else {
-			console.warn(`Command at ${filePath} is missing "data" property`);
-		}
+		try {
+			if ("data" in command) {
+				commands.push(command.data.toJSON());
+				client.commands.set(command.data.name, command);
+			} else {
+				console.warn(
+					`Command at ${filePath} is missing "data" property`
+				);
+			}
+		} catch {}
 	}
 
 	const rest = new REST({ version: "10" }).setToken(
