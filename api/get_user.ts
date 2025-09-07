@@ -36,7 +36,7 @@ export async function get_user_pp(
 		modePP[mode] = data.users[0].statistics_rulesets[mode].pp;
 	}
 	const userObj = userCache.get(invokerId);
-	if (userObj) {
+	if (userObj && userObj.osuId === osuId) {
 		userObj.tpp = Object.values(modePP).reduce((sum, val) => sum + val, 0);
 		userObj.spp = calculate_stdev(Object.values(modePP));
 	}
