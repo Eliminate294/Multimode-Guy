@@ -5,12 +5,14 @@ import {
 	MessageFlags,
 	SlashCommandBuilder,
 } from "discord.js";
-import { get_user_scores } from "../api/get_user.js";
+import { get_user_pp, get_user_scores } from "../api/get_user.js";
 import { get_osu_discord } from "../../func/psql/get_osu_discord.js";
 import { pp_change } from "../scores/weighting.js";
 import { stats } from "../../func/api/stats.js";
 import { userCache } from "../client.js";
 import { EmbedObject } from "../objects/embed.js";
+import { get_stdev_rank, OSEKAI_STATS } from "../osekai.js";
+import { calculate_stdev } from "../std_dev.js";
 
 export default {
 	data: new SlashCommandBuilder()
@@ -108,10 +110,25 @@ export default {
 		);
 		if (position > pp_values.length) {
 			await interaction.reply({
-				content: `A ${newPP}pp play would not add any value to `,
+				content: `A ${newPP}pp play would not add award any additional pp to ${osu_stats.username} in ${osu_stats.playmode}`,
 				flags: MessageFlags.Ephemeral,
 			});
+			return;
 		}
+		const mode_pp = await get_user_pp(
+			discord_id,
+			osu_id,
+			tokenData.access_token
+		);
+		let stdev_rank: number | undefined;
+		if (mode_pp) {
+			mode_pp[mode ?? (osu_stats.playmode as Mode)] = total;
+			const stdev_pp: number = await calculate_stdev(
+				Object.values(mode_pp)
+			);
+			[stdev_rank] = await get_stdev_rank(stdev_pp);
+		}
+		console.log(OSEKAI_STATS);
 
 		const embed = new EmbedObject()
 			.setDefaults(this.data.name)
@@ -125,6 +142,17 @@ export default {
 				}**, where they would gain **${change.toFixed(
 					2
 				)}pp** pushing them up to **${total.toFixed(2)}pp** in total.`
+			)
+			.addField(
+				"This would then place them:",
+				`spp: \`${
+					stdev_rank
+						? stdev_rank > 2500
+							? ">#2500"
+							: "#" + stdev_rank
+						: "API Error"
+				}\`\ntpp: \`#-1\``,
+				false
 			);
 
 		await interaction.reply({
