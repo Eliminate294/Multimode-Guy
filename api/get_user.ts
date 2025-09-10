@@ -9,6 +9,17 @@ import { calculate_stdev } from "../std_dev.js";
 type Mode = "osu" | "taiko" | "fruits" | "mania";
 const modes: Mode[] = ["osu", "taiko", "fruits", "mania"];
 
+async function get_users_data(
+	token: string,
+	osuId: number
+): Promise<Record<string, any> | void> {
+	const data = await get_users(osuId, token);
+	console.log(data);
+	if (data) {
+		return data;
+	}
+}
+
 export async function get_user_pp(
 	invokerId: string,
 	osuId: number,
@@ -20,16 +31,16 @@ export async function get_user_pp(
 			return;
 		}
 	}
+	const data = await get_users_data(token, osuId);
+	if (!data) {
+		return;
+	}
 	const modePP: Record<Mode, number> = {
 		osu: 0,
 		taiko: 0,
 		fruits: 0,
 		mania: 0,
 	};
-	const data = await get_users(osuId!, token);
-	if (!data) {
-		return;
-	}
 	for (const mode of Object.keys(
 		data.users[0].statistics_rulesets
 	) as Mode[]) {
