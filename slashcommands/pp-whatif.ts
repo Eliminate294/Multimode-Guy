@@ -138,7 +138,7 @@ export default {
 				`A new **${newPP}pp** play would be ${
 					osu_stats.username
 				}'s **#${position}** play in **${
-					osu_stats.playmode
+					mode ?? osu_stats.playmode
 				}**, where they would gain **${change.toFixed(
 					2
 				)}pp** pushing them up to **${total.toFixed(2)}pp** in total.`
