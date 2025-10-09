@@ -81,7 +81,7 @@ export default {
 		let modeString = "";
 		for (const key in data) {
 			const mode = key as Mode;
-			modeString += `${MODEEMOTES[mode]} **${data[mode]}**\n`;
+			modeString += `${MODEEMOTES[mode]} **${data[mode]}pp**\n`;
 		}
 		embed
 			.addField("Modes:", modeString, false)
