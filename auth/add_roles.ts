@@ -148,12 +148,29 @@ export async function update_rank(discordId: string, osuId: number) {
 			return;
 		}
 	}
+	const arr: Record<string, any> = Array.isArray(data) ? data[0] : data;
 
-	const rank: number | null = Number(data[0]?.rank);
-	const username: string | null = data[0]?.name;
+	const rank: number | null = Number(arr?.rank ?? null);
+	const username: string | null = arr?.name ?? arr?.username ?? null;
+	const spp: number | null =
+		arr.spp !== undefined
+			? Number(arr.spp)
+			: arr.stdev_pp !== undefined
+			? Number(arr.stdev_pp)
+			: null;
 
-	if (!rank || !username) {
+	const tpp: number | null =
+		arr.tpp !== undefined
+			? Number(arr.tpp)
+			: arr.total_pp !== undefined
+			? Number(arr.total_pp)
+			: null;
+
+	console.log(spp, tpp);
+
+	if (!rank || !username || !spp || !tpp) {
 		console.log(`Invalid osekai data for ${osuId}`);
+		console.log(arr);
 		return;
 	}
 
@@ -177,11 +194,5 @@ export async function update_rank(discordId: string, osuId: number) {
 	}
 
 	await member.setNickname(`${username} | #${rank}`);
-	await insert_osekai_stats(
-		osuId,
-		-1,
-		rank,
-		data[0].stdev_pp,
-		data[0].total_pp
-	);
+	await insert_osekai_stats(osuId, -1, rank, spp, tpp);
 }
